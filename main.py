@@ -5,7 +5,20 @@ import string
 WHITE = '\033[97m'
 BLUE = '\033[94m'
 YELLOW = '\033[93m'
+GREEN = '\033[92m'
+CYAN = '\033[96m'
 RESET = '\033[0m'
+
+def print_banner():
+    banner = r"""
+   ___ _ _      __                      _ 
+  / __(_) | ___/ _\ ___ __ _ _ __/\   /(_) _____      __
+ / _\ | | |/ _ \ \ / __/ _` | '_ \ \ / / |/ _ \ \ /\ / /
+/ /   | | |  __/\ \ (_| (_| | | | \ V /| |  __/\ V  V /
+\/    |_|_|\___\__/\___\__,_|_| |_|\_/ |_|\___| \_/\_/
+"""
+    print(f"{CYAN}{banner}")
+    print(f"{GREEN}Version 1.0.0 - TheGingerNinja 2025\n{RESET}")
 
 def is_readable(char):
     return char in string.printable and char not in '\t\n\r\x0b\x0c'
@@ -58,13 +71,9 @@ def main():
     parser.add_argument("--text-only", action="store_true", help="Only display yellow text (3+ readable chars)")
     args = parser.parse_args()
 
-    ascii_map = file_to_ascii_map(args.filename, args.width, args.text_only)
+    print_banner()
 
-    if args.text_only:
-        print("\nExtracted Text Runs (3+ readable characters)\n")
-    else:
-        print("\nASCII Pixel Map with Colors")
-        print("Legend: Yellow = text, Blue = isolated readable, White = non-printable\n")
+    ascii_map = file_to_ascii_map(args.filename, args.width, args.text_only)
 
     for line in ascii_map:
         print(line)
