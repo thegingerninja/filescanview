@@ -43,14 +43,11 @@ def generate_line(data, start, width, text_only):
     while i < len(data) and line_len < width:
         char = chr(data[i])
         if is_readable(char):
-            run = [char]
-            j = i + 1
-            while j < len(data) and is_readable(chr(data[j])) and len(run) + line_len < width:
-                run.append(chr(data[j]))
-                j += 1
+            run = collect_run(data, i, width - line_len)
             line += format_run(run, text_only)
-            line_len += len(run)
-            i = j
+            run_len = len(run)
+            i += run_len
+            line_len += run_len
         else:
             if not text_only:
                 line += f"{ANSI['white']}.{ANSI['reset']}"
@@ -58,6 +55,17 @@ def generate_line(data, start, width, text_only):
             i += 1
 
     return line, i
+
+def collect_run(data, start, max_length):
+    run = []
+    i = start
+    while i < len(data) and len(run) < max_length:
+        char = chr(data[i])
+        if not is_readable(char):
+            break
+        run.append(char)
+        i += 1
+    return run
 
 def read_file(file_path):
     """Read file contents as bytes."""
