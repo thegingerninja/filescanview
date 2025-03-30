@@ -24,16 +24,18 @@ def print_banner():
     print(f"{ANSI['green']}Version 1.0.0 - TheGingerNinja 2025\n{ANSI['reset']}")
 
 def is_readable(char):
+    """Check if a character is printable and not whitespace/control"""
     return char in string.printable and char not in '\t\n\r\x0b\x0c'
 
-def format_run(run, text_only):
-    if len(run) >= 3:
-        content = ''.join(run)
+def format_run(run, text_only, min_run=3):
+    """Format a run of readable characters."""
+    content = ''.join(run)
+    if len(run) >= min_run:
         return content if text_only else f"{ANSI['yellow']}{content}{ANSI['reset']}"
     else:
         return '' if text_only else f"{ANSI['blue']}{'*' * len(run)}{ANSI['reset']}"
 
-def process_line(data, start, width, text_only):
+def generate_line(data, start, width, text_only):
     line = ''
     i = start
     line_len = 0
@@ -57,14 +59,16 @@ def process_line(data, start, width, text_only):
 
     return line, i
 
-def file_to_ascii_map(file_path, width=80, text_only=False):
-    with open(file_path, 'rb') as f:
-        data = f.read()
+def read_file(file_path):
+    """Read file contents as bytes."""
+    with open(file_path, 'rb') as file:
+        return file.read()
 
+def generate_ascii_map(data, width=80, text_only=False):
     lines = []
     i = 0
     while i < len(data):
-        line, i = process_line(data, i, width, text_only)
+        line, i = generate_line(data, i, width, text_only)
         if line.strip():
             lines.append(line)
     return lines
@@ -77,12 +81,14 @@ def main():
     args = parser.parse_args()
 
     print_banner()
-
-    ascii_map = file_to_ascii_map(args.filename, args.width, args.text_only)
+    data = read_file(args.filename)
+    ascii_map = generate_ascii_map(data, args.width, args.text_only)
 
     for line in ascii_map:
         print(line)
 
+
+# -------- Unit Tests --------
 
 class TestAsciiVisualizer(unittest.TestCase):
     def test_is_readable(self):
@@ -104,7 +110,7 @@ class TestAsciiVisualizer(unittest.TestCase):
 
     def test_process_line(self):
         data = bytearray(b"AB!@#12345\x00\x01\x02XYZ")
-        line, _ = process_line(data, 0, 20, text_only=True)
+        line, _ = generate_line(data, 0, 20, text_only=True)
         self.assertIn("12345", line)
         self.assertNotIn("\x00", line)
 
