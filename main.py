@@ -1,5 +1,6 @@
 import argparse
 import string
+import unittest
 
 # ANSI color codes
 ANSI = {
@@ -81,6 +82,32 @@ def main():
 
     for line in ascii_map:
         print(line)
+
+
+class TestAsciiVisualizer(unittest.TestCase):
+    def test_is_readable(self):
+        self.assertTrue(is_readable('A'))
+        self.assertTrue(is_readable(' '))
+        self.assertFalse(is_readable('\n'))
+        self.assertFalse(is_readable('\x00'))
+
+    def test_format_run_text(self):
+        run = list("Hello")
+        output = format_run(run, text_only=True)
+        self.assertEqual(output, "Hello")
+
+    def test_format_run_ansi(self):
+        run = list("Hi")
+        output = format_run(run, text_only=False)
+        expected = f"{ANSI['blue']}**{ANSI['reset']}"
+        self.assertEqual(output, expected)
+
+    def test_process_line(self):
+        data = bytearray(b"AB!@#12345\x00\x01\x02XYZ")
+        line, _ = process_line(data, 0, 20, text_only=True)
+        self.assertIn("12345", line)
+        self.assertNotIn("\x00", line)
+
 
 if __name__ == "__main__":
     main()
